@@ -1,0 +1,24 @@
+.Knight{
+    width: 100%;
+    min-height: 100vh;
+    background:linear-gradient(rgba(24, 3, 66, 0.466),rgba(24, 3, 66, 0.466)),url('../../assets/Knight.png') ;
+background-size: cover; 
+background-position: center;
+color: #fff;
+display: flex;
+align-items: center;
+justify-content: center;
+
+}
+.Knight-text{
+    text-align: center;
+    max-width: 1100px;
+}
+.Knight-text h1{
+    font-size: 60px;
+    font-weight: 600;
+}
+.Knight-text p{
+    font-size: 20px;
+    margin-top: 20px;
+}
