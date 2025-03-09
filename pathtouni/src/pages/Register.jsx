@@ -1,14 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import registerBackground from "../assets/register-background.jpg"; // New background image
+import registerBackground from "../assets/register-background.jpg";
+import axios from "axios";
 
 const RegisterContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-image: url(${registerBackground});
+  background-image: url(${(props) => props.$bgImage});
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -65,103 +66,96 @@ const Button = styled.button`
 `;
 
 const Register = () => {
-  const navigate = useNavigate(); // Use react-router-dom navigation
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    zScore: "",
+    district: "",
+    stream: "",
+    results: "",
+    interests: [],
+  });
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    if (type === "checkbox") {
+      setFormData((prev) => ({
+        ...prev,
+        interests: checked
+          ? [...prev.interests, value]
+          : prev.interests.filter((interest) => interest !== value),
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/register`,
+        formData,
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      if (response.status === 201) {
+        alert("Registration successful!");
+        navigate("/dashboard");
+      } else {
+        alert("Registration failed.");
+      }
+    } catch (error) {
+      console.error("Registration failed:", error.response?.data || error.message);
+      alert("Registration failed. Please try again.");
+    }
+  };
 
   return (
-    <RegisterContainer>
-      <RegisterForm>
+    <RegisterContainer $bgImage={registerBackground}>
+      <RegisterForm onSubmit={handleSubmit}>
         <h2>Register</h2>
 
-        <Input type="text" placeholder="Full Name" required />
-        <Input type="email" placeholder="Email" required />
-        <Input type="password" placeholder="Password" required />
-        <Input type="tel" placeholder="Phone Number" required />
-        <Input type="text" placeholder="Z-Score" required />
+        <Input type="text" name="name" placeholder="Full Name" required value={formData.name} onChange={handleChange} />
+        <Input type="email" name="email" placeholder="Email" required value={formData.email} onChange={handleChange} />
+        <Input type="password" name="password" placeholder="Password" required value={formData.password} onChange={handleChange} />
+        <Input type="tel" name="phone" placeholder="Phone Number" required value={formData.phone} onChange={handleChange} />
+        <Input type="text" name="zScore" placeholder="Z-Score" required value={formData.zScore} onChange={handleChange} />
 
-        <Select required>
-        <option value="">Select District</option>
-  <option value="Ampara">Ampara</option>
-  <option value="Anuradhapura">Anuradhapura</option>
-  <option value="Badulla">Badulla</option>
-  <option value="Batticaloa">Batticaloa</option>
-  <option value="Colombo">Colombo</option>
-  <option value="Galle">Galle</option>
-  <option value="Gampaha">Gampaha</option>
-  <option value="Hambantota">Hambantota</option>
-  <option value="Jaffna">Jaffna</option>
-  <option value="Kalutara">Kalutara</option>
-  <option value="Kandy">Kandy</option>
-  <option value="Kegalle">Kegalle</option>
-  <option value="Kilinochchi">Kilinochchi</option>
-  <option value="Kurunegala">Kurunegala</option>
-  <option value="Mannar">Mannar</option>
-  <option value="Matale">Matale</option>
-  <option value="Matara">Matara</option>
-  <option value="Monaragala">Monaragala</option>
-  <option value="Mullaitivu">Mullaitivu</option>
-  <option value="Nuwara Eliya">Nuwara Eliya</option>
-  <option value="Polonnaruwa">Polonnaruwa</option>
-  <option value="Puttalam">Puttalam</option>
-  <option value="Ratnapura">Ratnapura</option>
-  <option value="Trincomalee">Trincomalee</option>
-  <option value="Vavuniya">Vavuniya</option>
+        <Select name="district" required value={formData.district} onChange={handleChange}>
+          <option value="">Select District</option>
+          <option value="Ampara">Ampara</option>
+          <option value="Anuradhapura">Anuradhapura</option>
+          <option value="Badulla">Badulla</option>
         </Select>
 
-        <Select required>
+        <Select name="stream" required value={formData.stream} onChange={handleChange}>
           <option value="">Select A/L Stream</option>
-          <option value="Physical Science">Physical Science</option>
-          <option value="Biological Science">Biological Science</option>
-          <option value="Commerce">Commerce</option>
-          <option value="Arts">Arts</option>
-          <option value="Technology">Technology</option>
-        </Select>
-
-        <h3>A/L Results</h3>
-        <Input type="text" placeholder="Subject 1 Name" required />
-        <Select required>
-          <option value="">Grade</option>
           <option value="A">A</option>
           <option value="B">B</option>
-          <option value="C">C</option>
-          <option value="S">S</option>
-          <option value="F">F</option>
         </Select>
 
-        <Input type="text" placeholder="Subject 2 Name" required />
-        <Select required>
-          <option value="">Grade</option>
-          <option value="A">A</option>
-          <option value="B">B</option>
-          <option value="C">C</option>
-          <option value="S">S</option>
-          <option value="F">F</option>
-        </Select>
-
-        <Input type="text" placeholder="Subject 3 Name" required />
-        <Select required>
-          <option value="">Grade</option>
-          <option value="A">A</option>
-          <option value="B">B</option>
-          <option value="C">C</option>
-          <option value="S">S</option>
-          <option value="F">F</option>
-        </Select>
+        <Input type="text" name="results" placeholder="A/L Results (e.g., A,A,A)" required value={formData.results} onChange={handleChange} />
 
         <p>Select Your Interests:</p>
         <CheckboxLabel>
-          <input type="checkbox" value="Engineering" /> Engineering
+          <input type="checkbox" name="interests" value="Engineering" checked={formData.interests.includes("Engineering")} onChange={handleChange} /> Engineering
         </CheckboxLabel>
         <CheckboxLabel>
-          <input type="checkbox" value="Medicine" /> Medicine
+          <input type="checkbox" name="interests" value="Medicine" checked={formData.interests.includes("Medicine")} onChange={handleChange} /> Medicine
         </CheckboxLabel>
         <CheckboxLabel>
-          <input type="checkbox" value="Business" /> Business
+          <input type="checkbox" name="interests" value="Business" checked={formData.interests.includes("Business")} onChange={handleChange} /> Business
         </CheckboxLabel>
 
         <Button type="submit">Register</Button>
-
         <p>Already have an account?</p>
-        <Button type="button" onClick={() => navigate("/signin")}>Sign In</Button>
+        <Button type="button" onClick={() => navigate("/signin")}>
+          Sign In
+        </Button>
       </RegisterForm>
     </RegisterContainer>
   );
