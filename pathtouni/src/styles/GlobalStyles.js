@@ -7,7 +7,7 @@ const GlobalStyles = createGlobalStyle`
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
   }
-
+background-image: url(${dashboardbackground});
   body {
     background-color: #f8f9fa;
     color: #333;
